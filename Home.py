@@ -1,6 +1,12 @@
 import streamlit as st
+from datetime import datetime
 
-st.selectbox(
+today = datetime.today().strftime("%H:%M:%S")
+
+st.title(today)
+
+
+model = st.selectbox(
     "Choose your model",
     (
         "GPT-3",
@@ -8,10 +14,17 @@ st.selectbox(
     ),
 )
 
-st.subheader("Welcome to Streamlit!")
+if model == "GPT-3":
+    st.write("cheap")
+else:
+    st.write("not cheap")
+    name = st.text_input("What is your name?")
+    st.write(name)
 
-st.markdown(
-    """
-    #### I love it!
-"""
-)
+    value = st.slider(
+        "temperature",
+        min_value=0.1,
+        max_value=1.0,
+    )
+
+    st.write(value)
