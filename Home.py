@@ -1,30 +1,40 @@
 import streamlit as st
-from datetime import datetime
 
-today = datetime.today().strftime("%H:%M:%S")
-
-st.title(today)
-
-
-model = st.selectbox(
-    "Choose your model",
-    (
-        "GPT-3",
-        "GPT-4",
-    ),
+st.set_page_config(
+    page_title="FullstackGPT Home",
+    page_icon="🤖",
 )
 
-if model == "GPT-3":
-    st.write("cheap")
-else:
-    st.write("not cheap")
-    name = st.text_input("What is your name?")
-    st.write(name)
+st.markdown(
+    """
+# Hello!
+            
+Welcome to my FullstackGPT Portfolio!
+            
+Here are the apps I made:
+            
+- [ ] [DocumentGPT](/DocumentGPT)
+- [ ] [PrivateGPT](/PrivateGPT)
+- [ ] [QuizGPT](/QuizGPT)
+- [ ] [SiteGPT](/SiteGPT)
+- [ ] [MeetingGPT](/MeetingGPT)
+- [ ] [InvestorGPT](/InvestorGPT)
+"""
+)
 
-    value = st.slider(
-        "temperature",
-        min_value=0.1,
-        max_value=1.0,
-    )
 
-    st.write(value)
+with st.sidebar:
+    st.title("About")
+    st.text_input("Your name", "Type Here ...")
+
+
+tab_one, tab_two, tab_three = st.tabs(["Tab 1", "Tab 2", "Tab 3"])
+
+with tab_one:
+    st.write("This is the first tab")
+
+with tab_two:
+    st.write("This is the second tab")
+
+with tab_three:
+    st.write("This is the third tab")
