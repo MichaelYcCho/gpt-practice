@@ -1,40 +1,38 @@
+import time
 import streamlit as st
 
 st.set_page_config(
-    page_title="FullstackGPT Home",
-    page_icon="🤖",
+    page_title="DocumentGPT",
+    page_icon="📃",
 )
 
-st.markdown(
-    """
-# Hello!
-            
-Welcome to my FullstackGPT Portfolio!
-            
-Here are the apps I made:
-            
-- [ ] [DocumentGPT](/DocumentGPT)
-- [ ] [PrivateGPT](/PrivateGPT)
-- [ ] [QuizGPT](/QuizGPT)
-- [ ] [SiteGPT](/SiteGPT)
-- [ ] [MeetingGPT](/MeetingGPT)
-- [ ] [InvestorGPT](/InvestorGPT)
-"""
-)
+st.title("DocumentGPT")
+
+if "messages" not in st.session_state:
+    st.session_state["messages"] = []
 
 
-with st.sidebar:
-    st.title("About")
-    st.text_input("Your name", "Type Here ...")
+def send_message(message, role, save=True):
+    with st.chat_message(role):
+        st.write(message)
+    if save:
+        st.session_state["messages"].append({"message": message, "role": role})
 
 
-tab_one, tab_two, tab_three = st.tabs(["Tab 1", "Tab 2", "Tab 3"])
+for message in st.session_state["messages"]:
+    send_message(
+        message["message"],
+        message["role"],
+        save=False,
+    )
 
-with tab_one:
-    st.write("This is the first tab")
 
-with tab_two:
-    st.write("This is the second tab")
+message = st.chat_input("Send a message to the ai ")
 
-with tab_three:
-    st.write("This is the third tab")
+if message:
+    send_message(message, "human")
+    time.sleep(2)
+    send_message(f"You said: {message}", "ai")
+
+    with st.sidebar:
+        st.write(st.session_state)
