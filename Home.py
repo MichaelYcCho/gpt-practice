@@ -16,6 +16,7 @@ def send_message(message, role, save=True):
     with st.chat_message(role):
         st.write(message)
     if save:
+        # 여러번의 재실행 과정에서 data가 보존될수 있게 해준다.
         st.session_state["messages"].append({"message": message, "role": role})
 
 
