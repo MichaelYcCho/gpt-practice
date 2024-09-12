@@ -114,7 +114,16 @@ if file:
             | prompt
             | llm
         )
-        response = chain.invoke(message)
+        """
+        실제로 이런 식으로 변환되어 진행된다고 보면된다.
+        chain = {
+        "context": [docs] | RunnableLambda(format_docs),
+        "question": message,
+        } 
+        """
+        response = chain.invoke(
+            message
+        )  # 사용자가 보내는 메세지 | question의 RunnablesPassthrough()
         send_message(response.content, "ai")
 else:
     st.session_state["messages"] = []
