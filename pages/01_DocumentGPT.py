@@ -7,19 +7,40 @@ from langchain.storage import LocalFileStore
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores.faiss import FAISS
 from langchain.chat_models import ChatOpenAI
+from langchain.callbacks.base import BaseCallbackHandler
 import streamlit as st
 from dotenv import load_dotenv
 
-load_dotenv(".././env/.env")
+load_dotenv()
 
 st.set_page_config(
     page_title="DocumentGPT",
     page_icon="📃",
 )
 
+
+class ChatCallbackHandler(BaseCallbackHandler):
+    message = ""
+
+    # 빈 밗스를 만들고, 그 박스에 메세지를 넣어준다.
+    def on_llm_start(self, *args, **kwargs):
+        self.message_box = st.empty()
+
+    def on_llm_end(self, *args, **kwargs):
+        save_message(self.message, "ai")
+
+    def on_llm_new_token(self, token, *args, **kwargs):
+        self.message += token
+        self.message_box.markdown(self.message)
+
+
 llm = ChatOpenAI(
     model_name="gpt-4o-mini",
     temperature=0.1,
+    streaming=True,
+    callbacks=[
+        ChatCallbackHandler(),
+    ],
 )
 
 
@@ -29,10 +50,10 @@ llm = ChatOpenAI(
 def embed_file(file):
     base_dir = os.path.abspath(".")
     file_content = file.read()
-    file_path = f"{base_dir}/../.cache/files/{file.name}"
+    file_path = f"{base_dir}/.cache/files/{file.name}"
     with open(file_path, "wb") as f:
         f.write(file_content)
-    cache_dir = LocalFileStore(f"{base_dir}/../.cache/embeddings/{file.name}")
+    cache_dir = LocalFileStore(f"{base_dir}/.cache/embeddings/{file.name}")
     splitter = CharacterTextSplitter.from_tiktoken_encoder(
         separator="\n",
         chunk_size=600,
@@ -47,11 +68,15 @@ def embed_file(file):
     return retriever
 
 
+def save_message(message, role):
+    st.session_state["messages"].append({"message": message, "role": role})
+
+
 def send_message(message, role, save=True):
     with st.chat_message(role):
         st.markdown(message)
     if save:
-        st.session_state["messages"].append({"message": message, "role": role})
+        save_message(message, role)
 
 
 def paint_history():
@@ -114,16 +139,9 @@ if file:
             | prompt
             | llm
         )
-        """
-        실제로 이런 식으로 변환되어 진행된다고 보면된다.
-        chain = {
-        "context": [docs] | RunnableLambda(format_docs),
-        "question": message,
-        } 
-        """
-        response = chain.invoke(
-            message
-        )  # 사용자가 보내는 메세지 | question의 RunnablesPassthrough()
-        send_message(response.content, "ai")
+
+        with st.chat_message("ai"):
+            chain.invoke(message)
+
 else:
     st.session_state["messages"] = []
